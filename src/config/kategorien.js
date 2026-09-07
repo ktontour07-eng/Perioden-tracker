@@ -313,6 +313,20 @@ export const STANDARD_FAVORITEN = [
   tagKey('ausfluss', 'cremig'),
 ]
 
+/**
+ * Auswahl fuer eigene Tags — angetippt statt getippt.
+ * Erweitern ist unkritisch: die Liste dient nur der Auswahl.
+ */
+export const ICON_AUSWAHL = [
+  '🙂', '🙁', '😐', '😊', '😢', '😠', '😴', '🤯', '🥱', '🤒',
+  '💪', '🧠', '🫀', '🌙', '⚡️', '🔥', '💧', '🌊', '🌫', '🌀',
+  '✨', '🌸', '🍂', '🧩', '🎯', '🚀', '🪨', '💎', '🧸', '🚪',
+  '🎉', '🤝', '🤍', '❓', '➕', '⭐️', '🕒', '🍫', '🥛', '💊',
+]
+
+/** Standard-Icon fuer neu angelegte Tags */
+export const STANDARD_TAG_ICON = '⭐️'
+
 /** Anzahl Chips in der Schnellansicht */
 export const SCHNELLANSICHT_ANZAHL = 8
 

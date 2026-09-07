@@ -7,7 +7,8 @@
  */
 
 import { useMemo, useState } from 'react'
-import { KATEGORIEN, SCHNELLANSICHT_ANZAHL, TYP, tagInfo } from '../config/kategorien.js'
+import { KATEGORIEN, SCHNELLANSICHT_ANZAHL, TYP } from '../config/kategorien.js'
+import { sichtbareOptionen, tagInfoAngepasst } from '../logik/tags.js'
 import { Aufklappbar, Chip, Skala, TagWahl } from './Basis.jsx'
 import Schmerzeingabe, { schmerzText } from './Schmerzeingabe.jsx'
 import SexEingabe, { sexText } from './SexEingabe.jsx'
@@ -23,10 +24,10 @@ export default function Tageseintrag({ eintrag, aendern, einstellungen, schnellT
   const schnell = useMemo(
     () =>
       (schnellTags || [])
-        .map((key) => tagInfo(key))
-        .filter((t) => t && !versteckt.includes(t.kategorie.id))
+        .map((key) => tagInfoAngepasst(key, einstellungen))
+        .filter((t) => t && !versteckt.includes(t.kategorie.id) && !t.option.versteckt)
         .slice(0, SCHNELLANSICHT_ANZAHL),
-    [schnellTags, versteckt],
+    [schnellTags, versteckt, einstellungen],
   )
 
   const tagUmschalten = (kategorie, id) => {
@@ -102,9 +103,11 @@ export default function Tageseintrag({ eintrag, aendern, einstellungen, schnellT
 
 function KategorieEingabe({ kategorie: k, eintrag, aendern, einstellungen }) {
   if (k.typ === TYP.TAGS) {
+    // Bereits gesetzte, inzwischen ausgeblendete Tags bleiben sichtbar —
+    // sonst liesse sich der Eintrag nicht mehr zuruecknehmen.
     return (
       <TagWahl
-        optionen={k.optionen}
+        optionen={sichtbareOptionen(k, einstellungen, eintrag[k.feld] || [])}
         werte={eintrag[k.feld] || []}
         farbe={k.farbe}
         onChange={(werte) => aendern({ [k.feld]: werte })}
@@ -164,8 +167,9 @@ function wortFuerSkala(k, wert) {
 
 function zusammenfassung(k, eintrag, einstellungen) {
   if (k.typ === TYP.TAGS) {
+    const optionen = sichtbareOptionen(k, einstellungen, eintrag[k.feld] || [])
     const gewaehlt = (eintrag[k.feld] || [])
-      .map((id) => k.optionen.find((o) => o.id === id)?.wort)
+      .map((id) => optionen.find((o) => o.id === id)?.wort)
       .filter(Boolean)
     return gewaehlt.join(' · ')
   }

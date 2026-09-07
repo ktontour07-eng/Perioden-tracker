@@ -20,13 +20,14 @@ import {
   schmerzStatistik,
   tagHaeufigkeiten,
 } from '../logik/auswertung.js'
+import { alleOptionen } from '../logik/tags.js'
 import OverlayLinie from '../charts/OverlayLinie.jsx'
 import PhasenBalken from '../charts/PhasenBalken.jsx'
 import Heatmap from '../charts/Heatmap.jsx'
 import TagBalken from '../charts/TagBalken.jsx'
 
 export default function Auswertung({ daten }) {
-  const { zyklusDaten: zd, lage, stand } = daten
+  const { zyklusDaten: zd, lage, stand, einstellungen } = daten
   const [skalaId, setSkalaId] = useState('stimmung')
   const [modus, setModus] = useState('rueckwaerts')
   const [tagKategorie, setTagKategorie] = useState(TAG_KATEGORIEN[0].id)
@@ -42,7 +43,12 @@ export default function Auswertung({ daten }) {
   const mittel = useMemo(() => mittelKurve(serien, modus), [serien, modus])
   const phasen = useMemo(() => phasenStatistik(zd, skala.feld), [zd, skala])
   const heat = useMemo(() => heatmapDaten(zd, skala.feld), [zd, skala])
-  const tags = useMemo(() => tagHaeufigkeiten(zd, tagKategorie), [zd, tagKategorie])
+  // Auch ausgeblendete Tags bleiben in der Auswertung: was frueher eingetragen
+  // wurde, ist passiert — Ausblenden betrifft nur die Eingabe.
+  const tags = useMemo(() => {
+    const kategorie = TAG_KATEGORIEN.find((k) => k.id === tagKategorie)
+    return tagHaeufigkeiten(zd, tagKategorie, alleOptionen(kategorie, einstellungen))
+  }, [zd, tagKategorie, einstellungen])
   const schmerzen = useMemo(() => schmerzStatistik(zd), [zd])
 
   const gesperrt = !lage.genug

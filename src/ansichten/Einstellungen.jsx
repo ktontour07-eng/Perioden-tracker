@@ -4,12 +4,9 @@
  */
 
 import { useRef, useState } from 'react'
-import {
-  ALLE_TAGS,
-  KATEGORIEN,
-  SCHNELLANSICHT_ANZAHL,
-  tagInfo,
-} from '../config/kategorien.js'
+import { KATEGORIEN, SCHNELLANSICHT_ANZAHL } from '../config/kategorien.js'
+import { alleTagsFlach, anpassungen } from '../logik/tags.js'
+import TagsVerwalten from '../komponenten/TagsVerwalten.jsx'
 import { HINWEISE } from '../config/texte.js'
 import { dateiLesen, datenImportieren, exportHerunterladen } from '../db/backup.js'
 import { testdatenEntfernen, testdatenLaden } from '../db/testdaten.js'
@@ -22,6 +19,7 @@ export default function Einstellungen({ daten }) {
   const [meldung, setMeldung] = useMeldung()
   const [medikamenteOffen, setMedikamenteOffen] = useState(false)
   const [favoritenOffen, setFavoritenOffen] = useState(false)
+  const [tagsOffen, setTagsOffen] = useState(false)
   const [loeschenOffen, setLoeschenOffen] = useState(false)
   const dateiFeld = useRef(null)
 
@@ -141,6 +139,23 @@ export default function Einstellungen({ daten }) {
         ))}
       </div>
 
+      {/* --- Tags ---------------------------------------------------------- */}
+      <div className="karte">
+        <div className="zeile-verteilt">
+          <h2>Tags</h2>
+          <button type="button" className="knopf leise" onClick={() => setTagsOffen(true)}>
+            bearbeiten
+          </button>
+        </div>
+        <p className="klein leise">
+          Wörter anlegen, umbenennen oder aus der Eingabe nehmen. Nach ein paar Wochen
+          Nutzung passt fast immer etwas nicht — das gehört angepasst, nicht ausgehalten.
+        </p>
+        <div className="fussnote">
+          {tagStatistik(einstellungen)}
+        </div>
+      </div>
+
       {/* --- Medikamente -------------------------------------------------- */}
       <div className="karte">
         <div className="zeile-verteilt">
@@ -231,7 +246,7 @@ export default function Einstellungen({ daten }) {
             Bis zu {SCHNELLANSICHT_ANZAHL} Tags stehen im Tageseintrag ganz oben.
           </p>
           <div className="chips">
-            {ALLE_TAGS.map(({ key, kategorie, option }) => {
+            {alleTagsFlach(einstellungen).map(({ key, kategorie, option }) => {
               const gewaehlt = (einstellungen.favoritenTags || []).includes(key)
               return (
                 <Chip
@@ -252,6 +267,17 @@ export default function Einstellungen({ daten }) {
               )
             })}
           </div>
+        </Dialog>
+      )}
+
+      {tagsOffen && (
+        <Dialog titel="Tags bearbeiten" onSchliessen={() => setTagsOffen(false)}>
+          <TagsVerwalten
+            einstellungen={einstellungen}
+            speichern={einstellungenSpeichern}
+            eintraege={eintraege}
+            onMeldung={setMeldung}
+          />
         </Dialog>
       )}
 
@@ -340,4 +366,16 @@ function MedikamenteVerwalten({ medikamente, onAendern }) {
       </div>
     </div>
   )
+}
+
+/** Kurze Bilanz der eigenen Anpassungen. */
+function tagStatistik(einstellungen) {
+  const a = anpassungen(einstellungen)
+  const eigene = Object.values(a.eigene).reduce((s, liste) => s + liste.length, 0)
+  const teile = []
+  if (eigene) teile.push(`${eigene} selbst angelegt`)
+  if (a.versteckt.length) teile.push(`${a.versteckt.length} ausgeblendet`)
+  const umbenannt = Object.keys(a.umbenannt).length
+  if (umbenannt) teile.push(`${umbenannt} umbenannt`)
+  return teile.length ? teile.join(' · ') : 'Bisher alles im Auslieferungszustand.'
 }

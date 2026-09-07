@@ -99,6 +99,19 @@ export async function zyklusLoeschen(id) {
   await db.zyklen.delete(id)
 }
 
+/**
+ * Entfernt einen Tag aus allen Tageseintraegen. Nur fuer das ausdrueckliche
+ * „endgueltig loeschen“ — der Normalfall ist Ausblenden, damit die Historie
+ * unveraendert bleibt.
+ */
+export async function tagAusEintraegenEntfernen(feld, tagId) {
+  const betroffen = await db.eintraege.filter((e) => (e[feld] || []).includes(tagId)).toArray()
+  await db.eintraege.bulkPut(
+    betroffen.map((e) => ({ ...e, [feld]: (e[feld] || []).filter((id) => id !== tagId) })),
+  )
+  return betroffen.length
+}
+
 export async function allesLoeschen() {
   await db.transaction('rw', db.eintraege, db.zyklen, async () => {
     await db.eintraege.clear()

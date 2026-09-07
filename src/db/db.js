@@ -24,6 +24,9 @@ export const STANDARD_EINSTELLUNGEN = {
   versteckteKategorien: [], // Kategorien-IDs, die im Tageseintrag nicht erscheinen
   eigeneMedikamente: [],
   favoritenTags: STANDARD_FAVORITEN,
+  // Eigene Aenderungen an den Tag-Listen: ausgeblendete, umbenannte und
+  // selbst angelegte Tags (siehe logik/tags.js)
+  tagAnpassungen: { versteckt: [], umbenannt: {}, eigene: {} },
   favoritenAutomatisch: true, // Schnellansicht aus der eigenen Nutzung ableiten
   weggewischteSprueche: [],
   arztHinweisGesehen: false,

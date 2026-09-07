@@ -8,12 +8,13 @@ import { useMemo } from 'react'
 import { REGELN, SCHMERZ_REGIONEN, TAG_KATEGORIEN, ZYKLUS_STATUS } from '../config/kategorien.js'
 import { formatMitJahr, heute as heuteISO, plusTage } from '../logik/datum.js'
 import { istBefuellt, musterUeberZeit, tagHaeufigkeiten } from '../logik/auswertung.js'
+import { alleOptionen } from '../logik/tags.js'
 
 export default function Bericht({ daten, gehZu }) {
-  const { zyklen, eintraege, zyklusDaten: zd, bezugsdatum, lage } = daten
+  const { zyklen, eintraege, zyklusDaten: zd, bezugsdatum, lage, einstellungen } = daten
   const muster = useMemo(() => musterUeberZeit(zyklen, bezugsdatum), [zyklen, bezugsdatum])
   const zeilen = useMemo(() => zyklusZeilen(zyklen, eintraege), [zyklen, eintraege])
-  const auffaellig = useMemo(() => auffaelligeTags(zd), [zd])
+  const auffaellig = useMemo(() => auffaelligeTags(zd, einstellungen), [zd, einstellungen])
 
   const text = useMemo(
     () => alsText({ zeilen, muster, auffaellig, lage }),
@@ -152,9 +153,9 @@ function zyklusZeilen(zyklen, eintraege) {
     })
 }
 
-function auffaelligeTags(zd) {
+function auffaelligeTags(zd, einstellungen) {
   return TAG_KATEGORIEN.flatMap((k) => {
-    const h = tagHaeufigkeiten(zd, k.id)
+    const h = tagHaeufigkeiten(zd, k.id, alleOptionen(k, einstellungen))
     return h.zeilen
       .filter((z) => z.unterschied !== null && Math.abs(z.unterschied) >= 20)
       .map((z) => ({ ...z, kategorie: k.titel }))

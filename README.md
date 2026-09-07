@@ -71,7 +71,18 @@ hormoneller Verhütung ganz ausgeblendet. Der geschätzte Eisprung ist als
 Schätzung gekennzeichnet und ausdrücklich nicht zur Verhütung geeignet.
 
 **Nichts eintippen.** Alle Eingaben sind Chips oder grosse Flächen. Getippt wird
-nur im optionalen Notizfeld und beim einmaligen Anlegen eigener Medikamente.
+nur im optionalen Notizfeld und beim Anlegen eigener Medikamente oder Tags.
+
+**Tags sind in der App änderbar** (*Mehr → Tags → bearbeiten*): anlegen,
+umbenennen, ausblenden, löschen. Umbenennen ändert nur das Wort, nie die ID —
+alte Einträge bleiben zugeordnet und erscheinen unter dem neuen Namen.
+„Ausblenden“ nimmt einen Tag aus der Eingabe, lässt ihn aber in der Historie und
+in der Auswertung stehen; ist er an einem Tag gesetzt, bleibt sein Chip dort
+sichtbar, damit sich der Eintrag zurücknehmen lässt. Nur „endgültig löschen“
+entfernt ihn auch aus den erfassten Tagen — mit vorheriger Angabe, wie viele
+Tage betroffen sind. Die Auslieferungslisten stehen weiterhin in
+`src/config/kategorien.js`; die eigenen Änderungen liegen in den Einstellungen
+(`tagAnpassungen`) und wandern damit durch Export und Import mit.
 
 **Export ist Pflichtfeature.** Safari löscht IndexedDB nach rund sieben Wochen
 Nichtnutzung. Unter **Mehr → Daten sichern** gibt es JSON-Export und -Import;

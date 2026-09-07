@@ -157,9 +157,12 @@ export function heatmapDaten(daten, feld) {
  * Gezaehlt werden nur Tage mit irgendeinem Eintrag — sonst wuerden Luecken
  * als „Symptom nicht vorhanden“ gewertet.
  */
-export function tagHaeufigkeiten(daten, kategorieId) {
+export function tagHaeufigkeiten(daten, kategorieId, optionen = null) {
   const kategorie = TAG_KATEGORIEN.find((k) => k.id === kategorieId)
   if (!kategorie) return { kategorie: null, phasen: [], zeilen: [] }
+  // `optionen` traegt die eigenen Anpassungen (umbenannt, selbst angelegt);
+  // ohne Angabe gelten die Standardlisten aus der Konfiguration.
+  const listeOptionen = optionen || kategorie.optionen
 
   const phasen = ['menstruation', 'follikel', 'luteal']
   const nenner = Object.fromEntries(phasen.map((p) => [p, 0]))
@@ -179,7 +182,7 @@ export function tagHaeufigkeiten(daten, kategorieId) {
     }
   }
 
-  const zeilen = kategorie.optionen
+  const zeilen = listeOptionen
     .map((opt) => {
       const z = zaehler[opt.id] || Object.fromEntries(phasen.map((p) => [p, 0]))
       const werte = Object.fromEntries(
