@@ -1,0 +1,63 @@
+# Baut die PWA und veroeffentlicht sie auf GitHub Pages.
+#
+# Damit laesst sich die App ohne Rechner testen: pushen genuegt, GitHub baut
+# und liefert unter https://<benutzer>.github.io/<repo>/ aus — mit HTTPS, also
+# installierbar als App und offlinefaehig.
+#
+# Einmalig noetig: Repository -> Settings -> Pages -> Source: "GitHub Actions".
+
+name: Pages
+
+on:
+  push:
+    branches: ['main', 'claude/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Laufende Deployments nicht abbrechen, aber auch nicht stapeln.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Die Zyklusrechnung ist der Teil, bei dem ein Fehler still bleibt —
+      # deshalb laeuft sie vor jedem Deployment.
+      - run: npm test
+
+      # GitHub Pages liefert unter /<repo>/ aus, nicht im Wurzelverzeichnis.
+      - name: Bauen
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  veroeffentlichen:
+    needs: bauen
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -3,11 +3,17 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 /**
- * PWA-Konfiguration. Zielgeraet ist das iPhone, installiert ueber
- * „Zum Home-Bildschirm“ — nur dann funktionieren Standalone-Anzeige und
- * (spaeter) Web Push.
+ * PWA-Konfiguration. Zielgeraete sind Handys, installiert ueber „Zum
+ * Startbildschirm“ — nur dann laeuft die App standalone und offline.
+ *
+ * BASE_PATH erlaubt das Ausliefern in einem Unterverzeichnis (GitHub Pages
+ * liefert unter /<repo>/ aus). Ohne die Variable laeuft alles wie bisher im
+ * Wurzelverzeichnis — passend fuer Vercel, Netlify oder Cloudflare Pages.
  */
+const base = process.env.BASE_PATH || '/'
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -19,8 +25,8 @@ export default defineConfig({
         description: 'Privates Zyklus-Tagebuch. Alle Daten bleiben auf diesem Gerät.',
         lang: 'de',
         dir: 'ltr',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#faf7f5',
@@ -41,7 +47,7 @@ export default defineConfig({
         // Die App ist vollstaendig offline nutzbar: es gibt keine Netzaufrufe.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         cleanupOutdatedCaches: true,
-        navigateFallback: 'index.html',
+        navigateFallback: `${base}index.html`,
       },
       devOptions: { enabled: false },
     }),

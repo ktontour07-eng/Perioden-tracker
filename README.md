@@ -77,6 +77,29 @@ nur im optionalen Notizfeld und beim einmaligen Anlegen eigener Medikamente.
 Nichtnutzung. Unter **Mehr → Daten sichern** gibt es JSON-Export und -Import;
 der Import ersetzt den vorhandenen Bestand.
 
+## Ohne Rechner testen: GitHub Pages
+
+Im Repo liegt ein Workflow (`.github/workflows/pages.yml`), der bei jedem Push
+baut, die Tests laufen lässt und auf GitHub Pages veröffentlicht. Einmalig
+nötig, direkt im Handy-Browser:
+
+*Repository → Settings → Pages → Source: **GitHub Actions***
+
+Danach läuft die App unter `https://<benutzer>.github.io/<repo>/` — mit HTTPS,
+also installierbar und offlinefähig. Neuer Push heisst neuer Build; die App
+holt sich die Version beim nächsten Start.
+
+Der Unterpfad wird über `BASE_PATH` gesetzt (der Workflow leitet ihn aus dem
+Repo-Namen ab). Lokal zum Gegenprüfen:
+
+```bash
+BASE_PATH=/mein-repo/ npm run build
+BASE_PATH=/mein-repo/ npm run preview   # dieselbe Variable, sonst 404s
+```
+
+Ohne die Variable wird wie bisher fürs Wurzelverzeichnis gebaut — passend für
+Vercel, Netlify oder Cloudflare Pages.
+
 ## iOS / PWA
 
 - Über Safari „Zum Home-Bildschirm“ installieren — nur dann läuft die App
@@ -85,8 +108,17 @@ der Import ersetzt den vorhandenen Bestand.
   Dynamic Island, Home-Indikator).
 - Der Service Worker cached die gesamte App; sie funktioniert vollständig
   offline, weil sie ohnehin keine Netzaufrufe macht.
-- Hosting: beliebiger Static-Host mit HTTPS (Vercel, Netlify, Cloudflare Pages).
-  `npm run build`, dann `dist/` ausliefern.
+- Hosting: beliebiger Static-Host mit HTTPS (GitHub Pages via Workflow oben,
+  sonst Vercel, Netlify, Cloudflare Pages). `npm run build`, dann `dist/`
+  ausliefern.
+
+## Android
+
+- Chrome bietet „App installieren“ an und legt eine echte WebAPK an; dafür ist
+  das maskable Icon im Manifest hinterlegt.
+- Die Sieben-Wochen-Regel von Safari gilt hier nicht — der Export bleibt
+  trotzdem die einzige Sicherung gegen „Speicher löschen“.
+- Daten hängen an Browser und Domain: was in Chrome liegt, sieht Firefox nicht.
 
 ## Tests
 
