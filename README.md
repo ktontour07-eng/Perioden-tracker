@@ -85,7 +85,9 @@ ein Dienst baut aus dem Repo und liefert aus. Der Build ist dafür vorbereitet �
 
 **Privates Repo (empfohlen):** Netlify, Vercel oder Cloudflare Pages deployen
 kostenlos auch aus privaten Repositories. Mit dem GitHub-Konto anmelden, Repo
-auswählen, Branch setzen, Build `npm run build`, Publish `dist`. Die App liegt
+auswählen, Branch setzen — Build `npm run build`, Publish `dist` stehen schon
+in `netlify.toml`, die Node-Version in `.nvmrc` (Vite 8 braucht Node 20.19+;
+ohne die Angabe bauen manche Dienste mit einer zu alten Version). Die App liegt
 danach im Wurzelverzeichnis einer eigenen Adresse — `BASE_PATH` wird nicht
 gebraucht.
 

@@ -1,0 +1,10 @@
+# Netlify: Buildbefehl, Ausgabeverzeichnis und Node-Version.
+# Vite 8 braucht Node 20.19+; ohne die Angabe baut Netlify je nach Voreinstellung
+# mit einer aelteren Version und bricht ab.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
