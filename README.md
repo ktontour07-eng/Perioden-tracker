@@ -77,28 +77,31 @@ nur im optionalen Notizfeld und beim einmaligen Anlegen eigener Medikamente.
 Nichtnutzung. Unter **Mehr → Daten sichern** gibt es JSON-Export und -Import;
 der Import ersetzt den vorhandenen Bestand.
 
-## Ohne Rechner testen: GitHub Pages
+## Ohne Rechner testen: hosten lassen
 
-Im Repo liegt ein Workflow (`.github/workflows/pages.yml`), der bei jedem Push
-baut, die Tests laufen lässt und auf GitHub Pages veröffentlicht. Einmalig
-nötig, direkt im Handy-Browser:
+Zum Installieren auf dem Handy braucht die App HTTPS. Ohne Rechner heisst das:
+ein Dienst baut aus dem Repo und liefert aus. Der Build ist dafür vorbereitet —
+`npm run build`, Ausgabeverzeichnis `dist`, keine weitere Konfiguration nötig.
 
-*Repository → Settings → Pages → Source: **GitHub Actions***
+**Privates Repo (empfohlen):** Netlify, Vercel oder Cloudflare Pages deployen
+kostenlos auch aus privaten Repositories. Mit dem GitHub-Konto anmelden, Repo
+auswählen, Branch setzen, Build `npm run build`, Publish `dist`. Die App liegt
+danach im Wurzelverzeichnis einer eigenen Adresse — `BASE_PATH` wird nicht
+gebraucht.
 
-Danach läuft die App unter `https://<benutzer>.github.io/<repo>/` — mit HTTPS,
-also installierbar und offlinefähig. Neuer Push heisst neuer Build; die App
-holt sich die Version beim nächsten Start.
-
-Der Unterpfad wird über `BASE_PATH` gesetzt (der Workflow leitet ihn aus dem
-Repo-Namen ab). Lokal zum Gegenprüfen:
+**GitHub Pages** ist für private Repos kostenpflichtig. Wenn das Repository
+öffentlich sein darf: *Settings → Pages → Source: GitHub Actions*, dann den
+Workflow **Pages** unter *Actions → Run workflow* starten. Pages liefert unter
+`/<repo>/` aus, deshalb setzt der Workflow `BASE_PATH` aus dem Repo-Namen.
+Lokal gegenprüfen:
 
 ```bash
 BASE_PATH=/mein-repo/ npm run build
 BASE_PATH=/mein-repo/ npm run preview   # dieselbe Variable, sonst 404s
 ```
 
-Ohne die Variable wird wie bisher fürs Wurzelverzeichnis gebaut — passend für
-Vercel, Netlify oder Cloudflare Pages.
+`.github/workflows/ci.yml` läuft bei jedem Push und prüft Tests und Build —
+unabhängig davon, wo gehostet wird.
 
 ## iOS / PWA
 
@@ -108,8 +111,8 @@ Vercel, Netlify oder Cloudflare Pages.
   Dynamic Island, Home-Indikator).
 - Der Service Worker cached die gesamte App; sie funktioniert vollständig
   offline, weil sie ohnehin keine Netzaufrufe macht.
-- Hosting: beliebiger Static-Host mit HTTPS (GitHub Pages via Workflow oben,
-  sonst Vercel, Netlify, Cloudflare Pages). `npm run build`, dann `dist/`
+- Hosting: beliebiger Static-Host mit HTTPS (Netlify, Vercel, Cloudflare
+  Pages; GitHub Pages nur bei öffentlichem Repo). `npm run build`, dann `dist/`
   ausliefern.
 
 ## Android

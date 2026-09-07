@@ -1,0 +1,29 @@
+# Prueft jeden Push: Tests und Produktionsbuild.
+#
+# Laeuft unabhaengig davon, wo die App spaeter gehostet wird — und ist die
+# einzige Ruecksicherung, solange kein Rechner zum lokalen Testen da ist.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Zyklusrechnung und Auswertung — der Teil, bei dem ein Fehler still bliebe.
+      - run: npm test
+
+      - run: npm run build
