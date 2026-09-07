@@ -82,10 +82,15 @@ export async function zyklusAktualisieren(id, aenderung) {
   await db.zyklen.update(id, aenderung)
 }
 
-export async function zyklusAnlegen(startDate) {
+/**
+ * Zyklus von Hand anlegen. Das Blutungsende ist optional — ohne Angabe fuellt
+ * es die Automatik aus den Blutungseintraegen, mit Angabe bleibt es stehen.
+ */
+export async function zyklusAnlegen(startDate, endDate = null) {
   return db.zyklen.add({
     startDate,
-    endDate: null,
+    endDate: endDate || null,
+    endeManuell: !!endDate,
     status: 'normal',
     inStatistik: true,
     statusManuell: false,

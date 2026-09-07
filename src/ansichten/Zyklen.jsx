@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { REGELN, ZYKLUS_STATUS } from '../config/kategorien.js'
-import { formatMitJahr, heute as heuteISO, plusTage } from '../logik/datum.js'
+import { formatMitJahr, heute as heuteISO, plusTage, tageDazwischen } from '../logik/datum.js'
 import { musterUeberZeit } from '../logik/auswertung.js'
 import { zyklusAktualisieren, zyklusAnlegen, zyklusLoeschen } from '../db/eintraege.js'
 import { Dialog, Wippe } from '../komponenten/Basis.jsx'
@@ -17,6 +17,7 @@ export default function Zyklen({ daten, gehZu, aktion, aktionErledigt }) {
   const [offenerZyklus, setOffenerZyklus] = useState(null)
   const [nachtragen, setNachtragen] = useState(false)
   const [neuesDatum, setNeuesDatum] = useState(heuteISO())
+  const [neuesEnde, setNeuesEnde] = useState('')
 
   useEffect(() => {
     if (aktion === 'nachtragen') {
@@ -98,9 +99,8 @@ export default function Zyklen({ daten, gehZu, aktion, aktionErledigt }) {
               >
                 <div>{formatMitJahr(z.startDate)}</div>
                 <div className="klein leise">
-                  {z.laufend
-                    ? `läuft — Tag ${z.bisherigeTage}`
-                    : `${z.laenge} Tage${z.mensTage ? ` · ${z.mensTage} Tage Blutung` : ''}`}
+                  {z.laufend ? `läuft — Tag ${z.bisherigeTage}` : `${z.laenge} Tage`}
+                  {z.mensTage ? ` · ${z.mensTage} Tage Blutung` : ''}
                   {!z.laufend && !z.inStatistik && ' · nicht in der Statistik'}
                 </div>
               </button>
@@ -128,22 +128,47 @@ export default function Zyklen({ daten, gehZu, aktion, aktionErledigt }) {
       {nachtragen && (
         <Dialog titel="Periode nachtragen" onSchliessen={() => setNachtragen(false)}>
           <p className="klein leise">
-            Erster Tag der Blutung. Der Zyklus wird angelegt, auch wenn für diesen Tag
-            kein Eintrag existiert.
+            Der Zyklus wird angelegt, auch wenn für diese Tage kein Eintrag existiert.
           </p>
+
+          <div className="klein leise abstand-unten">Erster Tag der Blutung</div>
           <input
             type="date"
             value={neuesDatum}
             max={heuteISO()}
-            onChange={(e) => setNeuesDatum(e.target.value)}
+            onChange={(e) => {
+              setNeuesDatum(e.target.value)
+              // Ein Ende vor dem Start waere unsinnig — dann lieber leeren.
+              if (neuesEnde && e.target.value && neuesEnde < e.target.value) setNeuesEnde('')
+            }}
             aria-label="Erster Tag der Blutung"
           />
+
+          <div className="klein leise abstand-unten" style={{ marginTop: 12 }}>
+            Letzter Tag der Blutung <span className="sehr-leise">— optional</span>
+          </div>
+          <input
+            type="date"
+            value={neuesEnde}
+            min={neuesDatum}
+            max={neuesDatum ? plusTage(neuesDatum, 14) : heuteISO()}
+            onChange={(e) => setNeuesEnde(e.target.value)}
+            aria-label="Letzter Tag der Blutung"
+          />
+          <div className="fussnote">
+            {neuesEnde
+              ? `${tageDazwischen(neuesDatum, neuesEnde) + 1} Tage Blutung.`
+              : 'Ohne Angabe trägt die App das Ende aus deinen Blutungstagen nach; ändern lässt es sich jederzeit über den Zyklus in der Historie.'}
+          </div>
+
           <div className="knopf-reihe abstand-oben">
             <button
               type="button"
               className="knopf betont"
+              disabled={!neuesDatum || (!!neuesEnde && neuesEnde < neuesDatum)}
               onClick={async () => {
-                await zyklusAnlegen(neuesDatum)
+                await zyklusAnlegen(neuesDatum, neuesEnde || null)
+                setNeuesEnde('')
                 setNachtragen(false)
               }}
             >
