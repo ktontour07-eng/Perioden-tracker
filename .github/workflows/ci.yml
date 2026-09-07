@@ -1,12 +1,11 @@
-# Prueft jeden Push: Tests und Produktionsbuild.
+# Tests und Produktionsbuild fuer Pull Requests und auf Zuruf.
 #
-# Laeuft unabhaengig davon, wo die App spaeter gehostet wird — und ist die
-# einzige Ruecksicherung, solange kein Rechner zum lokalen Testen da ist.
+# Bei Push auf die Entwicklungszweige uebernimmt das der Pages-Workflow, der
+# vor dem Deployment ohnehin testet und baut — sonst liefe alles doppelt.
 
 name: CI
 
 on:
-  push:
   pull_request:
   workflow_dispatch:
 

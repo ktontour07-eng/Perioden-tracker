@@ -1,24 +1,17 @@
 # Baut die PWA und veroeffentlicht sie auf GitHub Pages.
 #
-# ACHTUNG: GitHub Pages ist fuer PRIVATE Repositories kostenpflichtig. Solange
-# dieses Repo privat und der Plan kostenlos ist, scheitert der Schritt
-# "configure-pages" — das ist erwartbar und kein Fehler im Projekt.
+# Voraussetzung (einmalig): Settings -> Pages -> Source: "GitHub Actions".
+# Fuer private Repositories ist Pages kostenpflichtig — schlaegt der Schritt
+# "configure-pages" fehl, ist das der Grund, nicht das Projekt.
 #
-# Zwei Wege:
-#   a) Repository oeffentlich machen (Settings -> General -> Change visibility)
-#      und Settings -> Pages -> Source: "GitHub Actions" setzen. Der Quelltext
-#      ist dann sichtbar; die Eintraege der App bleiben ausschliesslich auf dem
-#      Geraet, im Repo liegen keine Gesundheitsdaten.
-#   b) Repo privat lassen und bei Netlify, Vercel oder Cloudflare Pages bauen
-#      lassen — die koennen kostenlos aus privaten Repos deployen. Dann wird
-#      dieser Workflow nicht gebraucht.
-#
-# Deshalb laeuft er nur auf Zuruf (Actions -> Pages -> "Run workflow"), nicht
-# bei jedem Push: sonst schlaegt jeder Push rot fehl.
+# GitHub Pages liefert unter /<repo>/ aus statt im Wurzelverzeichnis; der
+# Buildpfad kommt deshalb ueber BASE_PATH aus dem Repo-Namen.
 
 name: Pages
 
 on:
+  push:
+    branches: ['main', 'claude/**']
   workflow_dispatch:
 
 permissions:
